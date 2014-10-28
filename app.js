@@ -1,10 +1,15 @@
 var express = require('express');
+var partials = require('express-partials')
+
 var path = require('path');
+
 var favicon = require('serve-favicon');
+
 var logger = require('morgan');
+
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var partials = require('express-partials')
+
 var pg = require('pg')
 
 var routes = require('./routes/routes');
@@ -31,7 +36,7 @@ app.get('/contact', routes.contact);
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM test_table', function(err, result) {
+    client.query('SELECT * FROM kanji', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
