@@ -30,7 +30,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', routes.index);
+// app.get('/', routes.index);
+app.get('/', engine.route);
 app.get('/about', routes.about);
 app.get('/contact', routes.contact);
 
