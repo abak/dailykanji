@@ -35,9 +35,7 @@ app.get('/about', routes.about);
 app.get('/contact', routes.contact);
 
 
-app.get('/db', function (request, response) {
-  engine.getRandomKanji(request, response);
-});
+app.get('/db', engine.route);
 
 app.use('/users', users);
 

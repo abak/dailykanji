@@ -9,26 +9,23 @@ var engine = (function(){
     return Math.floor(Math.random() * (max_id - min_id + 1)) + min_id;
   }
 
-  function getRandomKanji(request, response){
+  function getRandomKanji(callback){
     var id = getRandomID();
     var query = 'SELECT * FROM kanji WHERE id = '+id;
-    console.log(query);
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      console.log("connected");
       client.query(query, function(err, result) {
         done();
         if (err){
           console.error(err); throw "Error " + err;
         }
         else{
-          response.send(result.rows);
+          callback(result.rows[0]);
         }
       });
     });
   };
 
   function getMinMax(callback){
-    console.log("getMinMax");
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
       client.query(min_max_query, function(err, result) {
         done();
@@ -46,21 +43,26 @@ var engine = (function(){
     });
   };
 
-  function getRandomKanjiWrapper(request, response){
+  function getRandomKanjiWrapper(callback){
     if (typeof min_id == 'undefined' 
      || typeof max_id == 'undefined'){
-      getMinMax(function(){getRandomKanji(request, response);});
+      getMinMax(function(){getRandomKanji(callback);});
     }
     else{
-      getRandomKanji(request, response);
+      getRandomKanji(callback);
     }
   };
 
+
   return {
-    "getMinMax": getMinMax,
     "getRandomKanji":getRandomKanjiWrapper
   };
 })();
 
-exports.getMinMax = engine.getMinMax;
 exports.getRandomKanji = engine.getRandomKanji;
+
+exports.route = function(request, response){
+  engine.getRandomKanji(function(query_result){
+    response.render('kanji', query_result);
+  });
+};
