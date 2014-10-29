@@ -10,10 +10,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var pg = require('pg')
-
 var routes = require('./routes/routes');
 var users = require('./routes/users');
+
+var engine = require('./engine/engine');
 
 var app = express();
 
@@ -34,16 +34,9 @@ app.get('/', routes.index);
 app.get('/about', routes.about);
 app.get('/contact', routes.contact);
 
+
 app.get('/db', function (request, response) {
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM kanji', function(err, result) {
-      done();
-      if (err)
-       { console.error(err); response.send("Error " + err); }
-      else
-       { response.send(result.rows); }
-    });
-  });
+  engine.getRandomKanji(request, response);
 });
 
 app.use('/users', users);
