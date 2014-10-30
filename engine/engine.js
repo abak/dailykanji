@@ -1,16 +1,26 @@
 var pg = require('pg');
+  
+function isEmpty(object){
+  for(var key in object){
+    if(object.hasOwnProperty(key)){
+      return false;
+    }
+  }
+  return true;
+}
 
 var engine = (function(){
   var min_id = undefined;
   var max_id = undefined;
   var min_max_query = 'SELECT min(id), max(id) FROM kanji';
 
+
+
   function getRandomID(){
     return Math.floor(Math.random() * (max_id - min_id + 1)) + min_id;
   }
 
-  function getRandomKanji(callback){
-    var id = getRandomID();
+  function getKanjiFromID(id, callback){
     var query = 'SELECT * FROM kanji WHERE id = '+id;
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
       client.query(query, function(err, result) {
@@ -23,6 +33,11 @@ var engine = (function(){
         }
       });
     });
+  }
+
+  function getRandomKanji(callback){
+    var id = getRandomID();
+    getKanjiFromID(id, callback);
   };
 
   function getMinMax(callback){
@@ -43,26 +58,32 @@ var engine = (function(){
     });
   };
 
-  function getRandomKanjiWrapper(callback){
+  function wrapDatabaseQuery(callback){
     if (typeof min_id == 'undefined' 
      || typeof max_id == 'undefined'){
-      getMinMax(function(){getRandomKanji(callback);});
+      getMinMax(callback);
     }
     else{
-      getRandomKanji(callback);
+      callback();
     }
   };
 
-
   return {
-    "getRandomKanji":getRandomKanjiWrapper
+    "getRandomKanji":function(callback){wrapDatabaseQuery(function(){getRandomKanji(callback);});},
+    "getKanjiFromID":function(id, callback){wrapDatabaseQuery(function(){getKanjiFromID(id, callback);});},
+    "isEmpty":isEmpty
   };
 })();
 
-exports.getRandomKanji = engine.getRandomKanji;
-
 exports.route = function(request, response){
-  engine.getRandomKanji(function(query_result){
+  var rendering_callback = function(query_result){
     response.render('kanji', query_result);
-  });
+  }
+  var query = request.query;
+  if(query.hasOwnProperty("id")){
+    console.log(query.id)
+    engine.getKanjiFromID(query.id, rendering_callback);
+  } else {
+    engine.getRandomKanji(rendering_callback);
+  }
 };
