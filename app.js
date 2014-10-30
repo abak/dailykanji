@@ -2,7 +2,6 @@ var express = require('express');
 var partials = require('express-partials')
 
 var path = require('path');
-
 var favicon = require('serve-favicon');
 
 var logger = require('morgan');
@@ -21,6 +20,8 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(partials());
+
+app.locals.version = require('./package.json').version;
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
