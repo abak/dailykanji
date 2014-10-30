@@ -7,7 +7,7 @@ Kanjis are hard. They all look the same, they have lots of different meanings, a
 ##Second Fact
 I never had the opportunity to try wed development, and it kinda look like black magic to me.
 
-## Introducting Daily Kanji
+## Introducing Daily Kanji
 Armed with these twos facts, here is Daily Kanji, a current version is [available](https://dailykanji.herokuapp.com/). A web application, probably full of bad design decision and poor technology choices.
 
 ##Roadmap
