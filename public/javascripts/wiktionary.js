@@ -24,8 +24,6 @@ var wiki = (function(){
     var elements = $(data);
     elements.find('.mw-editsection').remove();
     elements.find('a').each(function(index){
-      console.log(this.className);
-      console.log($(this).attr('href'));
       if(this.className !== 'extiw'){
         $(this).attr('href', 'http://en.wiktionary.org' + $(this).attr('href'));
       }
