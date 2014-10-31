@@ -1,7 +1,6 @@
 var wiki = (function(){
   var kanji = "";
   var base_url = "http://en.wiktionary.org/w/api.php?";
-  var user_agent = "Daily Kanji wiktionary integration (adrien.bak@gmail.com)";
   var commonQueryParams = {
     "format"    : "json",
     "action"    : "parse",
@@ -24,6 +23,13 @@ var wiki = (function(){
   function filter(data){
     var elements = $(data);
     elements.find('.mw-editsection').remove();
+    elements.find('a').each(function(index){
+      console.log(this.className);
+      console.log($(this).attr('href'));
+      if(this.className !== 'extiw'){
+        $(this).attr('href', 'http://en.wiktionary.org' + $(this).attr('href'));
+      }
+    });
     elements.each(function(index){
       if(this.id === "toc"){
         $(this).empty();
@@ -44,7 +50,7 @@ var wiki = (function(){
     var query = buildQuery(queryParams);
     var result = $.getJSON(query, function(data){
       var content = filter(data.parse.text["*"])
-      $("#main").append(content);
+      $("#wiki").append(content);
       });
   }
 
