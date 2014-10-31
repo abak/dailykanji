@@ -1,41 +1,33 @@
-var query_wiki = "http://en.wiktionary.org/w/api.php?action=parse&page=%E5%AE%9F&format=jsonfm&prop=text"
-
 var wiki = (function(){
-  var base_url = "http://en.wiktionary.org/w/api.php";
+  var base_url = "http://en.wiktionary.org/w/api.php?";
   var user_agent = "Daily Kanji wiktionary integration (adrien.bak@gmail.com)";
   var queryParams = {
     "format"    : "json",
     "action"    : "parse",
     "prop"      : "text",
-    "page"      : ""
+    "callback"  : "?"
   };
 
-  function parseJson(jsonData){
-    console.log(jsonData);
-    // var keys = Object.keys(data.query.pages);
-    // if (keys.length === 0){
-    //   //no page found
-    //   return;
-    // }
-
+  function buildQuery(kanji){
+    var query = base_url;
+    for(var key in queryParams){
+      if (queryParams.hasOwnProperty(key)){
+        query+=key +"="+queryParams[key]+"&";
+      }
+    }
+    query+="page="+kanji;
+    return query;
   }
 
-  function getArticle(kanji){
-    queryParams.page = kanji;
-    superagent.get(base_url)
-      .query(queryParams)
-      .set("User-Agent", user_agent)
-      .end(function(res){
-        var data = JSON.parse(res.text);
-        parseJson(data);
-      })
-  };
+  function getKanji(kanji){
+    var query = buildQuery(kanji);
+
+    var result = $.getJSON(query, function(data){
+      $("#main").append(data.parse.text["*"]);
+    });
+  }
 
   return {
-    "getArticle":getArticle
+    "getKanji":getKanji
   };
 })();
-
-$.getJSON(query_wiki, function(data){
-  console.log(data);
-})
