@@ -22,12 +22,14 @@ var wiki = (function(){
   }
 
   function filter(data){
-    console.log(data);
-    var element = $(data);
-    //removes the edit
-    element.find('.mw-editsection').remove();
-    // element.find('.toc').remove();
-    return element;
+    var elements = $(data);
+    elements.find('.mw-editsection').remove();
+    elements.each(function(index){
+      if(elements[index].id === "toc"){
+        $(this).empty();
+      }
+    });
+    return elements;
   }
 
   function retrieveRelevantSection(section){
