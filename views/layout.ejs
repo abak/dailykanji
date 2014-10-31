@@ -35,8 +35,12 @@
         <div class="starter-template">
 
           <%- body %>
-
         </div>
+        
+        <button id="wiki-toggle">Read More</button>
+          <div id="wiki" style="display:none">
+          <p>From <a href="https://www.wiktionary.org/">Wiktionary.org</a> :</p>
+          </div>
       </div>
     </div>
 
@@ -53,6 +57,11 @@
 window.onload = function(){
   wiki.getKanji($("#kanji").text().trim());
 }
+
+$("#wiki-toggle").click(function(){
+  $("#wiki").toggle("400");
+});
+
 </script>
 
 </html>
