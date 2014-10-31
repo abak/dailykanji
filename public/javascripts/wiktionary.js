@@ -1,6 +1,6 @@
 var wiki = (function(){
   var kanji = "";
-  var base_url = "http://en.wiktionary.org/w/api.php?";
+  var base_url = "https://en.wiktionary.org/w/api.php?";
   var commonQueryParams = {
     "format"    : "json",
     "action"    : "parse",
