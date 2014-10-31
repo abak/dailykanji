@@ -21,6 +21,15 @@ var wiki = (function(){
     return query;
   }
 
+  function filter(data){
+    console.log(data);
+    var element = $(data);
+    //removes the edit
+    element.find('.mw-editsection').remove();
+    // element.find('.toc').remove();
+    return element;
+  }
+
   function retrieveRelevantSection(section){
     var queryParams = {
       "prop"    : "text",
@@ -29,10 +38,9 @@ var wiki = (function(){
 
     var query = buildQuery(queryParams);
     var result = $.getJSON(query, function(data){
-      console.log(data);
-      $("#main").append(data.parse.text["*"]);
+      var content = filter(data.parse.text["*"])
+      $("#main").append(content);
       });
-
   }
 
   function queryRelevantSection(){
@@ -46,7 +54,6 @@ var wiki = (function(){
         function(i){
           return i.anchor === "Japanese";
       });
-      console.log(sections[0]);
       if(sections.length === 1){
         retrieveRelevantSection(sections[0]);
       }
