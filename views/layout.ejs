@@ -6,7 +6,7 @@
       <link rel='stylesheet' href='/stylesheets/bootstrap.min.css'/>
       <link rel='stylesheet' href='/stylesheets/bootstrap-theme.min.css'/>
       <link rel='stylesheet' href='/stylesheets/style.css'/>
-      <link rel='script' href='/javascripts/wiktionary.js'/>
+      <script type="text/javascript" src='/javascripts/wiktionary.js'></script>
       <% include ga.ejs %>
   </head>
 
@@ -50,21 +50,10 @@
     <script src='/javascripts/bootstrap.min.js'></script>
     <script>
 
-    function test(truc){
-      console.log(truc);
-    }
-
-var query_wiki = "http://en.wiktionary.org//w/api.php?action=parse&format=json&page=%E5%B1%8B&prop=text&callback=?"
-
-var query = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles=India&prop=revisions&rvprop=content&callback=test";
-
-$.getJSON(query_wiki ,function(data) {
-  // console.log(data.parse.text["*"]);
-  $("#main").append(data.parse.text["*"]);
-      });
-
-  // console.log($("test_div"));
-
+window.onload = function(){
+  console.log($("#kanji").text());
+  wiki.getKanji($("#kanji").text().trim());
+}
 </script>
 
 </html>
