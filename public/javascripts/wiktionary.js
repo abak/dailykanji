@@ -25,7 +25,10 @@ var wiki = (function(){
     var elements = $(data);
     elements.find('.mw-editsection').remove();
     elements.each(function(index){
-      if(elements[index].id === "toc"){
+      if(this.id === "toc"){
+        $(this).empty();
+      }
+      if( this.nodeName === "H2"){
         $(this).empty();
       }
     });
