@@ -6,11 +6,7 @@ var favicon = require('serve-favicon');
 
 var logger = require('morgan');
 
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
 var routes = require('./routes/routes');
-var users = require('./routes/users');
 
 var engine = require('./engine/engine');
 
@@ -23,23 +19,13 @@ app.use(partials());
 
 app.locals.version = require('./package.json').version;
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
+
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.get('/', routes.index);
 app.get('/', engine.route);
 app.get('/about', routes.about);
-app.get('/contact', routes.contact);
-
-
-app.get('/db', engine.route);
-
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
