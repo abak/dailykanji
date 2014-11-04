@@ -26,8 +26,9 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', engine.route);
+app.get('/', engine.default);
 app.get('/about', routes.about);
+app.post('/search', engine.advanced_search);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
