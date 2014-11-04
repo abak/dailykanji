@@ -12,7 +12,7 @@ function isEmpty(object){
 var engine = (function(){
   var min_id = undefined;
   var max_id = undefined;
-  var min_max_query = 'SELECT min(id), max(id) FROM kanji';
+  var min_max_query = 'SELECT min(id), max(id) FROM kanji_table';
 
 
 
@@ -20,8 +20,7 @@ var engine = (function(){
     return Math.floor(Math.random() * (max_id - min_id + 1)) + min_id;
   }
 
-  function getKanjiFromID(id, callback){
-    var query = 'SELECT * FROM kanji WHERE id = '+id;
+  function queryDatabase(query, callback){
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
       client.query(query, function(err, result) {
         done();
@@ -29,16 +28,33 @@ var engine = (function(){
           console.error(err); throw "Error " + err;
         }
         else{
-          callback(result.rows[0]);
+          callback(result.rows);
         }
       });
     });
+  }
+
+  function getKanjiFromID(id, callback){
+    var query = 'SELECT * FROM kanji_table WHERE id = '+id;
+    queryDatabase(query, callback);
   }
 
   function getRandomKanji(callback){
     var id = getRandomID();
     getKanjiFromID(id, callback);
   };
+
+  function getItemsFromText(text, callback){
+    if(text.length > 0){
+      var query = "SELECT * FROM kanji_table WHERE kanji='" + text +"'";
+    }
+    else{
+      var query = "SELECT * FROM kanji_table";
+    }
+
+    queryDatabase(query, callback);
+  };
+
 
   function getMinMax(callback){
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
@@ -69,21 +85,41 @@ var engine = (function(){
   };
 
   return {
-    "getRandomKanji":function(callback){wrapDatabaseQuery(function(){getRandomKanji(callback);});},
-    "getKanjiFromID":function(id, callback){wrapDatabaseQuery(function(){getKanjiFromID(id, callback);});},
-    "isEmpty":isEmpty
+    "getRandomKanji":function(callback){
+      wrapDatabaseQuery(function(){getRandomKanji(callback);});
+    }
+    , "getKanjiFromID":function(id, callback){
+      wrapDatabaseQuery(function(){getKanjiFromID(id, callback);});
+    }
+    , "getItemsFromText":function(text, callback){
+      wrapDatabaseQuery(function(){getItemsFromText(text, callback);});
+    }
   };
 })();
 
-exports.route = function(request, response){
+exports.default = function(request, response){
   var rendering_callback = function(query_result){
-    response.render('kanji', query_result);
+    response.render('kanji', query_result[0]);
   }
   var query = request.query;
   if(query.hasOwnProperty("id")){
-    console.log(query.id)
     engine.getKanjiFromID(query.id, rendering_callback);
   } else {
     engine.getRandomKanji(rendering_callback);
   }
+};
+
+exports.advanced_search = function(request, response){
+  
+  var rendering_callback = function(query_result){
+    if(query_result.length > 1){
+      response.render('table', {'collection' :query_result});
+    }
+    else if (query_result.length === 1){
+      response.render('kanji', query_result[0]);
+    }
+  }
+
+  engine.getItemsFromText(request.body.kanjiTextField, rendering_callback);
+
 };
