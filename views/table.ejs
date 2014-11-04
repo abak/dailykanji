@@ -1,0 +1,16 @@
+
+<table class="table table-striped">
+  <caption>Search Results</caption>
+  <thead>
+    <th>#</th>
+    <th>kanji</th>
+  </thead>
+  <tbody>
+    <% for(var i = 0 ; i < collection.length; i++){%>
+        <tr>
+          <td><a href="/?id=<%= collection[i].id%>"><%= collection[i].id%></a></td>
+          <td><a href="/?id=<%= collection[i].id%>"><%= collection[i].kanji%></a></td>
+        </tr>
+    <%}%>
+  </tbody>
+</table>
