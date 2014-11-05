@@ -164,16 +164,15 @@ exports.default = function(request, response){
 };
 
 exports.advanced_search = function(request, response){
-  console.log(request.body);
   var query_renderer = renderQueryResultsGenerator(response);
-  if(request.body.kanjiTextField){
-    engine.getItemsFromText(request.body.kanjiTextField, query_renderer);
+  if(request.query.kanjiTextField){
+    engine.getItemsFromText(request.query.kanjiTextField, query_renderer);
   }
-  else if (request.body.hasOwnProperty("random")){
-    engine.getRandomKanjiFromLevel(request.body.jlptInputField, query_renderer);
+  else if (request.query.hasOwnProperty("random")){
+    engine.getRandomKanjiFromLevel(request.query.jlptInputField, query_renderer);
   }
   else{//whether "all" is there or not we render everything as a fallback
-    engine.getAllKanjiFromLevel(request.body.jlptInputField, query_renderer);
+    engine.getAllKanjiFromLevel(request.query.jlptInputField, query_renderer);
   }
 
 };
