@@ -12,12 +12,13 @@ function isEmpty(object){
 var engine = (function(){
   var min_id = undefined;
   var max_id = undefined;
-  var min_max_query = 'SELECT min(id), max(id) FROM kanji_table';
 
-
+  function getRandomInt(min, max){
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
 
   function getRandomID(){
-    return Math.floor(Math.random() * (max_id - min_id + 1)) + min_id;
+    return getRandomInt(min_id, max_id + 1);//inclusive
   }
 
   function queryDatabase(query, callback){
@@ -44,19 +45,30 @@ var engine = (function(){
     getKanjiFromID(id, callback);
   };
 
+
+  function getAllKanjiFromLevel(level, callback){
+    var query = 'SELECT * FROM kanji_table WHERE jltp >='+level;
+    queryDatabase(query, callback);
+  };
+
   function getRandomKanjiFromLevel(level, callback){
     if (level === "0"){
       getRandomKanji(callback);
     }
     else{
 
-      var selection_callback = function(query_results){
-        callback(query_results);
-      }
+      var selection_callback = function(query_result){
+        if(query_result.length === 0){
+          callback(query_result);
+        }
+        else{
+          var idx = getRandomInt(0, query_result.length);
+          var selected = [query_result[idx]];
+          callback(selected);
+        }
+      };
 
-
-      var query = 'SELECT * FROM kanji_table WHERE jltp >='+level;
-      queryDatabase(query, selection_callback);
+      getAllKanjiFromLevel(level, selection_callback);
     }
   };
 
@@ -77,6 +89,7 @@ var engine = (function(){
 
 
   function getMinMax(callback){
+    var min_max_query = 'SELECT min(id), max(id) FROM kanji_table';
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
       client.query(min_max_query, function(err, result) {
         done();
@@ -114,27 +127,17 @@ var engine = (function(){
     , "getItemsFromText":function(text, callback){
       wrapDatabaseQuery(function(){getItemsFromText(text, callback);});
     }
+    , "getAllKanjiFromLevel":function(level, callback){
+      wrapDatabaseQuery(function(){getAllKanjiFromLevel(level, callback);});
+    }
     , "getRandomKanjiFromLevel":function(level, callback){
       wrapDatabaseQuery(function(){getRandomKanjiFromLevel(level, callback);});
     }
   };
 })();
 
-exports.default = function(request, response){
-  var rendering_callback = function(query_result){
-    response.render('kanji', query_result[0]);
-  }
-  var query = request.query;
-  if(query.hasOwnProperty("id")){
-    engine.getKanjiFromID(query.id, rendering_callback);
-  } else {
-    engine.getRandomKanji(rendering_callback);
-  }
-};
-
-exports.advanced_search = function(request, response){
-  
-  var rendering_callback = function(query_result){
+function renderQueryResultsGenerator(response){
+  return function(query_result){
     if(query_result.length > 1){
       response.render('table', {'collection' :query_result});
     }
@@ -147,14 +150,30 @@ exports.advanced_search = function(request, response){
         stack :''};
       response.render('error', {message : 'No Kanji Found', error:err});
     }
-  }
+  };
+};
 
-  console.log(request.body);
-  if(request.body.kanjiTextField){
-    engine.getItemsFromText(request.body.kanjiTextField, rendering_callback);
+exports.default = function(request, response){
+  var query = request.query;
+  var query_renderer = renderQueryResultsGenerator(response);
+  if(query.hasOwnProperty("id")){
+    engine.getKanjiFromID(query.id, query_renderer);
+  } else {
+    engine.getRandomKanji(query_renderer);
   }
-  else{
-    engine.getRandomKanjiFromLevel(request.body.jlptInputField, rendering_callback);
+};
+
+exports.advanced_search = function(request, response){
+  console.log(request.body);
+  var query_renderer = renderQueryResultsGenerator(response);
+  if(request.body.kanjiTextField){
+    engine.getItemsFromText(request.body.kanjiTextField, query_renderer);
+  }
+  else if (request.body.hasOwnProperty("random")){
+    engine.getRandomKanjiFromLevel(request.body.jlptInputField, query_renderer);
+  }
+  else{//whether "all" is there or not we render everything as a fallback
+    engine.getAllKanjiFromLevel(request.body.jlptInputField, query_renderer);
   }
 
 };
