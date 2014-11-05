@@ -1,10 +1,16 @@
 <button id="advanced-toggle" class="btn btn-default" onclick="$('#advanced').toggle('400')">Advance Search &raquo;</button>
   <div id="advanced" style="display:none" align="left">
     <form role="form" action="/search" method="post">
-      <div class="form-group">
-        <label for="kanjiInput">Kanji</label>
+      <div class="form-group" id="kanjiInputDiv">
+        <label for="kanjiInput">lookup one or more kanjis</label>
         <input type="text" class="form-control" id="kanjiInput" placeholder="enter one or more kanji to lookup" name="kanjiTextField">
       </div>
-      <button type="submit" class="btn btn-default">Submit</button>
+      <p>Or</p>
+      <div class="form-group" id="jlptInputDiv">
+        <label for="jlptInput">look for a specific JLPT level</label>
+        <input type="number" class="form-control" id="jlptInput" placeholder="enter one or more kanji to lookup" name="jlptInputField" value="0" min="0" max="5">
+      </div>
+      <button type="submit" class="btn btn-default" name="all">All</button>
+      <button type="submit" class="btn btn-default" name="random">Random</button>
     </form>
   </div>
