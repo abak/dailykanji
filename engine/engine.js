@@ -122,6 +122,12 @@ exports.advanced_search = function(request, response){
     else if (query_result.length === 1){
       response.render('kanji', query_result[0]);
     }
+    else if (query_result.length === 0){
+      err = {
+        status : 'Sorry about that.',
+        stack :''};
+      response.render('error', {message : 'No Kanji Found', error:err});
+    }
   }
 
   engine.getItemsFromText(request.body.kanjiTextField, rendering_callback);
