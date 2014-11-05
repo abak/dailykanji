@@ -44,6 +44,22 @@ var engine = (function(){
     getKanjiFromID(id, callback);
   };
 
+  function getRandomKanjiFromLevel(level, callback){
+    if (level === "0"){
+      getRandomKanji(callback);
+    }
+    else{
+
+      var selection_callback = function(query_results){
+        callback(query_results);
+      }
+
+
+      var query = 'SELECT * FROM kanji_table WHERE jltp >='+level;
+      queryDatabase(query, selection_callback);
+    }
+  };
+
   function getItemsFromText(text, callback){
     if(text.length > 0){
       var query = "SELECT * FROM kanji_table WHERE ";//kanji='" + text +"'";
@@ -98,6 +114,9 @@ var engine = (function(){
     , "getItemsFromText":function(text, callback){
       wrapDatabaseQuery(function(){getItemsFromText(text, callback);});
     }
+    , "getRandomKanjiFromLevel":function(level, callback){
+      wrapDatabaseQuery(function(){getRandomKanjiFromLevel(level, callback);});
+    }
   };
 })();
 
@@ -130,6 +149,12 @@ exports.advanced_search = function(request, response){
     }
   }
 
-  engine.getItemsFromText(request.body.kanjiTextField, rendering_callback);
+  console.log(request.body);
+  if(request.body.kanjiTextField){
+    engine.getItemsFromText(request.body.kanjiTextField, rendering_callback);
+  }
+  else{
+    engine.getRandomKanjiFromLevel(request.body.jlptInputField, rendering_callback);
+  }
 
 };
