@@ -46,7 +46,11 @@ var engine = (function(){
 
   function getItemsFromText(text, callback){
     if(text.length > 0){
-      var query = "SELECT * FROM kanji_table WHERE kanji='" + text +"'";
+      var query = "SELECT * FROM kanji_table WHERE ";//kanji='" + text +"'";
+      for(var i = 0, len=text.length - 1 ; i < len ; i++){
+        query += "kanji='"+text[i]+"' OR ";
+      }
+      query += "kanji='"+text[text.length - 1]+"'";
     }
     else{
       var query = "SELECT * FROM kanji_table";
