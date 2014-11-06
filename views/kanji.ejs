@@ -6,7 +6,7 @@
     <p> Kun Reading : <%= kun_reading %> </p>
     <p> Kun Translation : <%= kun_translation %> </p>
 
-    <a href='/' class="btn btn-default btn-lg" role="button">Get Another One &raquo;</a>
+    <button class="btn btn-default btn-lg" role="button" id="next_one">Get Another One &raquo;</a>
   </div>
 
   <div class="col-md-6">
@@ -21,4 +21,8 @@
 window.onload = function(){
   wiki.getKanji($("#kanji").text().trim());
 }
+
+$("#next_one").click(function(){
+  location.reload();
+});
 </script>
