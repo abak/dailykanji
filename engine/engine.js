@@ -21,9 +21,9 @@ var engine = (function(){
     return getRandomInt(min_id, max_id + 1);//inclusive
   }
 
-  function queryDatabase(query, callback){
+  function queryDatabase(query, queryArgs, callback){
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-      client.query(query, function(err, result) {
+      client.query(query, queryArgs, function(err, result) {
         done();
         if (err){
           console.error(err); throw "Error " + err;
@@ -36,8 +36,8 @@ var engine = (function(){
   }
 
   function getKanjiFromID(id, callback){
-    var query = 'SELECT * FROM kanji_table WHERE id = '+id;
-    queryDatabase(query, callback);
+    var query = 'SELECT * FROM kanji_table WHERE id = $1';
+    queryDatabase(query, [id], callback);
   }
 
   function getRandomKanji(callback){
@@ -47,8 +47,8 @@ var engine = (function(){
 
 
   function getAllKanjiFromLevel(level, callback){
-    var query = 'SELECT * FROM kanji_table WHERE jltp >='+level;
-    queryDatabase(query, callback);
+    var query = 'SELECT * FROM kanji_table WHERE jltp >= $1';
+    queryDatabase(query, [level], callback);
   };
 
   function getRandomKanjiFromLevel(level, callback){
@@ -74,17 +74,21 @@ var engine = (function(){
 
   function getItemsFromText(text, callback){
     if(text.length > 0){
-      var query = "SELECT * FROM kanji_table WHERE ";//kanji='" + text +"'";
+      var query = "SELECT * FROM kanji_table WHERE ";
+      var queryArgs = [];
       for(var i = 0, len=text.length - 1 ; i < len ; i++){
-        query += "kanji='"+text[i]+"' OR ";
+        query += "kanji=$"+(i+1)+" OR ";
+        queryArgs.push(text[i]);
       }
-      query += "kanji='"+text[text.length - 1]+"'";
+      query += "kanji=$"+(text.length);
+      queryArgs.push(text[text.length - 1]);
     }
     else{
       var query = "SELECT * FROM kanji_table";
+      var queryArgs = [];
     }
 
-    queryDatabase(query, callback);
+    queryDatabase(query, queryArgs, callback);
   };
 
 
